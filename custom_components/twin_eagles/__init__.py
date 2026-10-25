@@ -9,7 +9,7 @@ from .api import CloudClient, GrillClient, GrillDevice
 from .const import CONF_DEVICE_ID, CONF_DEVICE_NAME, CONF_MODEL, CONF_SOURCE, CONF_TECHNOLOGY, SOURCE_CLOUD
 from .coordinator import TwinEaglesConfigEntry, TwinEaglesCoordinator
 
-PLATFORMS = [Platform.BINARY_SENSOR, Platform.SENSOR]
+PLATFORMS = [Platform.BINARY_SENSOR, Platform.NUMBER, Platform.SELECT, Platform.SENSOR]
 
 
 def create_client(hass: HomeAssistant, data: dict) -> GrillClient:

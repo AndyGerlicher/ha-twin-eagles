@@ -4,15 +4,23 @@
       "user": {
         "title": "Twin Eagles account",
         "description": "Sign in with the account you use in the Twin Eagles app.",
-        "data": { "username": "Email", "password": "Password" }
+        "data": {
+          "username": "Email",
+          "password": "Password"
+        }
       },
       "device": {
         "title": "Choose grill",
-        "data": { "device_id": "Grill" }
+        "data": {
+          "device_id": "Grill"
+        }
       },
       "reauth_confirm": {
         "title": "Sign in again",
-        "data": { "username": "Email", "password": "Password" }
+        "data": {
+          "username": "Email",
+          "password": "Password"
+        }
       }
     },
     "error": {
@@ -27,25 +35,76 @@
   },
   "entity": {
     "sensor": {
-      "pit_temperature": { "name": "Pit temperature" },
-      "set_temperature": { "name": "Set temperature" },
-      "mode": { "name": "Mode" },
-      "last_update": { "name": "Last update" },
-      "probe_1_temperature": { "name": "Probe {probe} temperature" },
-      "probe_2_temperature": { "name": "Probe {probe} temperature" },
-      "probe_3_temperature": { "name": "Probe {probe} temperature" },
-      "probe_1_target": { "name": "Probe {probe} target" },
-      "probe_2_target": { "name": "Probe {probe} target" },
-      "probe_3_target": { "name": "Probe {probe} target" }
+      "pit_temperature": {
+        "name": "Pit temperature"
+      },
+      "set_temperature": {
+        "name": "Set temperature"
+      },
+      "mode": {
+        "name": "Mode"
+      },
+      "last_update": {
+        "name": "Last update"
+      },
+      "probe_1_temperature": {
+        "name": "Probe {probe} temperature"
+      },
+      "probe_2_temperature": {
+        "name": "Probe {probe} temperature"
+      },
+      "probe_3_temperature": {
+        "name": "Probe {probe} temperature"
+      }
     },
     "binary_sensor": {
-      "power": { "name": "Power" },
-      "fan": { "name": "Fan" },
-      "ignitor": { "name": "Ignitor" },
-      "auger": { "name": "Auger" },
-      "light": { "name": "Light" },
-      "alarm": { "name": "Alarm" },
-      "online": { "name": "Online" }
+      "power": {
+        "name": "Power"
+      },
+      "fan": {
+        "name": "Fan"
+      },
+      "ignitor": {
+        "name": "Ignitor"
+      },
+      "auger": {
+        "name": "Auger"
+      },
+      "light": {
+        "name": "Light"
+      },
+      "alarm": {
+        "name": "Alarm"
+      },
+      "online": {
+        "name": "Online"
+      }
+    },
+    "number": {
+      "temperature": {
+        "name": "Set temperature"
+      },
+      "probe_target": {
+        "name": "Probe {probe} target"
+      }
+    },
+    "select": {
+      "mode": {
+        "name": "Cooking mode",
+        "state": {
+          "smoke": "Smoke",
+          "smoke_plus": "Smoke Plus",
+          "sear": "Sear"
+        }
+      },
+      "sear_level": {
+        "name": "Sear level",
+        "state": {
+          "min": "Low",
+          "med": "Medium",
+          "max": "High"
+        }
+      }
     }
   }
 }

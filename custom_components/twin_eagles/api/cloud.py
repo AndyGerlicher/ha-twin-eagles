@@ -5,12 +5,13 @@ Reverse engineered from the Android app v2.2.1. Temperatures are always °F.
 from __future__ import annotations
 
 import asyncio
+import json
 from datetime import datetime, timezone
 from typing import Any
 
 import aiohttp
 
-from .base import GrillAuthError, GrillClient, GrillConnectionError
+from .base import GrillAuthError, GrillClient, GrillCommandError, GrillConnectionError
 from .models import GrillDevice, GrillStatus, Probe
 
 BASE_URL = "https://te.bonelessgrills.com/app/"
@@ -18,6 +19,8 @@ TIMEOUT = aiohttp.ClientTimeout(total=15)
 
 # Unplugged probes report 0 °C.
 UNPLUGGED_PROBE_TEMP = 32
+# The app uses this probe target to mean "no target".
+NO_PROBE_TARGET = 240
 
 
 class CloudClient(GrillClient):
@@ -56,8 +59,25 @@ class CloudClient(GrillClient):
 
     async def async_get_status(self, device: GrillDevice) -> GrillStatus:
         # The status path is case sensitive: the device list says PELLETS, the API wants pellets.
-        data = await self._authed("GET", f"{device.technology.lower()}/{device.id}")
+        data = await self._authed("GET", self._device_path(device))
         return parse_status(data)
+
+    async def _async_set_probe_target(self, device: GrillDevice, probe: int, temperature: int) -> None:
+        await self._authed(
+            "PUT",
+            f"{self._device_path(device)}/chambers/0/probes/{probe}/targetTemperature?targetTemperature={temperature}",
+        )
+
+    async def _async_set_mode(self, device: GrillDevice, mode: str) -> None:
+        await self._authed("PUT", f"{self._device_path(device)}/chambers/0/mode?mode={mode.upper()}")
+
+    async def _async_set_sear_level(self, device: GrillDevice, level: str) -> None:
+        await self._authed("PUT", f"{self._device_path(device)}/chambers/0/searmode?searmode={level.upper()}")
+
+    @staticmethod
+    def _device_path(device: GrillDevice) -> str:
+        # Case sensitive: the device list says PELLETS, the API wants pellets.
+        return f"{device.technology.lower()}/{device.id}"
 
     async def _authed(self, method: str, path: str) -> Any:
         if self._token is None:
@@ -80,9 +100,12 @@ class CloudClient(GrillClient):
                     raise GrillAuthError(f"Login rejected ({resp.status})")
                 if resp.status in (401, 403):
                     raise GrillAuthError(f"Token rejected ({resp.status})")
+                if 400 <= resp.status < 500:
+                    raise GrillCommandError(f"Request rejected ({resp.status}): {(await resp.text())[:200]}")
                 resp.raise_for_status()
-                return await resp.json(content_type=None)
-        except (aiohttp.ClientError, asyncio.TimeoutError) as err:
+                text = await resp.text()
+                return json.loads(text) if text.strip() else None
+        except (aiohttp.ClientError, asyncio.TimeoutError, json.JSONDecodeError) as err:
             raise GrillConnectionError(str(err)) from err
 
 
@@ -97,6 +120,7 @@ def parse_status(data: dict[str, Any]) -> GrillStatus:
         online=last_ms > 0 and "DEVICE_NOT_FOUND" not in alarms,
         on=bool(chamber.get("onOff")),
         mode=(chamber.get("mode") or "").lower() or None,
+        sear_level=None if chamber.get("searMode") in (None, "", "NOSEAR") else chamber["searMode"].lower(),
         pit_temperature=pit.get("currentTemperature"),
         set_temperature=pit.get("targetTemperature"),
         probes=[
@@ -105,7 +129,7 @@ def parse_status(data: dict[str, Any]) -> GrillStatus:
                 temperature=None
                 if p.get("currentTemperature") == UNPLUGGED_PROBE_TEMP
                 else p.get("currentTemperature"),
-                target=p.get("targetTemperature"),
+                target=None if p.get("targetTemperature") == NO_PROBE_TARGET else p.get("targetTemperature"),
             )
             for p in probes[1:]
         ],

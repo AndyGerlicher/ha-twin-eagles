@@ -1,14 +1,18 @@
 """End-to-end tests of config flow, setup and entities."""
 from __future__ import annotations
 
+import dataclasses
+
+import pytest
 from homeassistant import config_entries
 from homeassistant.const import STATE_OFF, STATE_ON, STATE_UNAVAILABLE, STATE_UNKNOWN
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.util.unit_system import US_CUSTOMARY_SYSTEM
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.twin_eagles.api import GrillAuthError
+from custom_components.twin_eagles.api import GrillAuthError, GrillCommandError
 from custom_components.twin_eagles.const import DOMAIN
 
 from .conftest import OFFLINE, ONLINE
@@ -105,3 +109,78 @@ async def test_auth_failure_starts_reauth(hass: HomeAssistant, mock_client) -> N
     result = await hass.config_entries.flow.async_configure(flows[0]["flow_id"], {**CREDS, "password": "new"})
     assert result["reason"] == "reauth_successful"
     assert entry.data["password"] == "new"
+
+
+async def _setup(hass: HomeAssistant, mock_client, **changes) -> None:
+    status = dataclasses.replace(mock_client.statuses[ONLINE.id], **changes)
+    mock_client.statuses[ONLINE.id] = status
+    hass.config.units = US_CUSTOMARY_SYSTEM
+    entry = make_entry()
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+
+async def test_controls(hass: HomeAssistant, mock_client) -> None:
+    await _setup(hass, mock_client)
+    prefix = "my_twin_eagles_grill"
+
+    temp = hass.states.get(f"number.{prefix}_set_temperature")
+    assert float(temp.state) == 247
+    assert temp.attributes["min"] == 140 and temp.attributes["max"] == 725
+    assert hass.states.get(f"select.{prefix}_cooking_mode").state == "smoke_plus"
+    # No probe target set (240) shows as unknown.
+    assert hass.states.get(f"number.{prefix}_probe_1_target").state == STATE_UNKNOWN
+    # Sear level only applies in sear mode.
+    assert hass.states.get(f"select.{prefix}_sear_level").state == STATE_UNAVAILABLE
+
+    await hass.services.async_call(
+        "number", "set_value", {"entity_id": f"number.{prefix}_set_temperature", "value": 225}, blocking=True
+    )
+    mock_client.async_set_temperature.assert_awaited_once_with(ONLINE, 225)
+
+    await hass.services.async_call(
+        "number", "set_value", {"entity_id": f"number.{prefix}_probe_2_target", "value": 165}, blocking=True
+    )
+    mock_client.async_set_probe_target.assert_awaited_once_with(ONLINE, 2, 165)
+
+    await hass.services.async_call(
+        "select", "select_option", {"entity_id": f"select.{prefix}_cooking_mode", "option": "sear"}, blocking=True
+    )
+    mock_client.async_set_mode.assert_awaited_once_with(ONLINE, "sear")
+
+
+async def test_sear_controls(hass: HomeAssistant, mock_client) -> None:
+    await _setup(hass, mock_client, mode="sear", sear_level="max")
+    prefix = "my_twin_eagles_grill"
+
+    assert hass.states.get(f"number.{prefix}_set_temperature").state == STATE_UNAVAILABLE
+    assert hass.states.get(f"select.{prefix}_sear_level").state == "max"
+    await hass.services.async_call(
+        "select", "select_option", {"entity_id": f"select.{prefix}_sear_level", "option": "min"}, blocking=True
+    )
+    mock_client.async_set_sear_level.assert_awaited_once_with(ONLINE, "min")
+
+
+async def test_controls_unavailable_when_off(hass: HomeAssistant, mock_client) -> None:
+    await _setup(hass, mock_client, on=False)
+    prefix = "my_twin_eagles_grill"
+    for entity_id in (
+        f"number.{prefix}_set_temperature",
+        f"number.{prefix}_probe_1_target",
+        f"select.{prefix}_cooking_mode",
+        f"select.{prefix}_sear_level",
+    ):
+        assert hass.states.get(entity_id).state == STATE_UNAVAILABLE, entity_id
+
+
+async def test_command_error_surfaces(hass: HomeAssistant, mock_client) -> None:
+    await _setup(hass, mock_client)
+    mock_client.async_set_temperature.side_effect = GrillCommandError("Grill is off")
+    with pytest.raises(HomeAssistantError, match="Grill is off"):
+        await hass.services.async_call(
+            "number",
+            "set_value",
+            {"entity_id": "number.my_twin_eagles_grill_set_temperature", "value": 225},
+            blocking=True,
+        )

@@ -3,7 +3,8 @@
 Unofficial Home Assistant integration for Twin Eagles pellet grills (tested on a 36" built-in, model `TE01V4`).
 
 The official app talks to a cloud service; this integration uses the same API, reverse engineered from the
-Android app. It is **read-only** for now: it can't start, stop or change the temperature of your grill.
+Android app. It can change the temperature and cooking mode of a grill that is **already running**, but it
+deliberately can't start or stop the grill.
 
 ## Install (HACS)
 
@@ -19,13 +20,24 @@ Android app. It is **read-only** for now: it can't start, stop or change the tem
 |---|---|
 | Pit temperature, Set temperature | °F from the grill, converted to your unit system |
 | Probe 1–3 temperature | `unknown` when the probe is unplugged |
-| Probe 1–3 target | Disabled by default |
 | Mode | `smoke`, `smoke_plus`, `sear`, `charcoal` |
 | Power, Fan, Ignitor, Auger, Light | Binary sensors |
 | Alarm | On when the grill reports alarms; list in the `alarms` attribute |
 | Online, Last update | Diagnostics |
 
 Status is polled every 30 seconds.
+
+### Controls
+
+| Entity | Notes |
+|---|---|
+| Set temperature (number) | 140–725 °F. Smoke and Smoke Plus only |
+| Cooking mode (select) | Smoke, Smoke Plus, Sear. Charcoal is not settable |
+| Sear level (select) | Low, Medium, High. Sear mode only |
+| Probe 1–3 target (number) | 100–225 °F, the same limits as the app |
+
+Controls are unavailable while the grill is off or offline, and the client library refuses commands in that
+state as well, so nothing can bring an idle grill to life. There is no start command.
 
 ## Design
 

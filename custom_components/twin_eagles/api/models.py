@@ -4,6 +4,21 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
 
+# Values the grill accepts, lowercase. Charcoal mode is intentionally not settable.
+MODE_SMOKE = "smoke"
+MODE_SMOKE_PLUS = "smoke_plus"
+MODE_SEAR = "sear"
+SETTABLE_MODES = [MODE_SMOKE, MODE_SMOKE_PLUS, MODE_SEAR]
+TEMPERATURE_MODES = [MODE_SMOKE, MODE_SMOKE_PLUS]
+SEAR_LEVELS = ["min", "med", "max"]
+PROBE_COUNT = 3
+
+# Limits enforced by the official app for pellet grills, °F.
+MIN_TEMPERATURE = 140
+MAX_TEMPERATURE = 725
+MIN_PROBE_TARGET = 100
+MAX_PROBE_TARGET = 225
+
 
 @dataclass
 class GrillDevice:
@@ -31,6 +46,7 @@ class GrillStatus:
     online: bool
     on: bool
     mode: str | None
+    sear_level: str | None
     pit_temperature: float | None
     set_temperature: float | None
     probes: list[Probe] = field(default_factory=list)

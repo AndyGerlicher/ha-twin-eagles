@@ -16,10 +16,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .api import GrillStatus
+from .api.models import PROBE_COUNT
 from .coordinator import TwinEaglesConfigEntry, TwinEaglesCoordinator
 from .entity import TwinEaglesEntity
-
-PROBE_COUNT = 3
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -62,19 +61,13 @@ SENSORS: list[TwinEaglesSensorDescription] = [
 ]
 
 for _n in range(1, PROBE_COUNT + 1):
-    SENSORS += [
+    SENSORS.append(
         _temperature(
             f"probe_{_n}_temperature",
             lambda s, n=_n: (p := _probe(s, n)) and p.temperature,
             translation_placeholders={"probe": str(_n)},
-        ),
-        _temperature(
-            f"probe_{_n}_target",
-            lambda s, n=_n: (p := _probe(s, n)) and p.target,
-            translation_placeholders={"probe": str(_n)},
-            entity_registry_enabled_default=False,
-        ),
-    ]
+        )
+    )
 
 
 async def async_setup_entry(

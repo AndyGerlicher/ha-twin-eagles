@@ -2,13 +2,14 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Awaitable, Callable
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ConfigEntryAuthFailed
+from homeassistant.exceptions import ConfigEntryAuthFailed, HomeAssistantError
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .api import GrillAuthError, GrillClient, GrillDevice, GrillError, GrillStatus
+from .api import GrillAuthError, GrillClient, GrillCommandError, GrillDevice, GrillError, GrillStatus
 from .const import DOMAIN, SCAN_INTERVAL
 
 _LOGGER = logging.getLogger(__name__)
@@ -35,3 +36,17 @@ class TwinEaglesCoordinator(DataUpdateCoordinator[GrillStatus]):
             raise ConfigEntryAuthFailed(str(err)) from err
         except GrillError as err:
             raise UpdateFailed(str(err)) from err
+
+    async def async_command(self, command: Callable[[GrillClient, GrillDevice], Awaitable[None]]) -> None:
+        """Run a command against the grill, then refresh so entities reflect the result."""
+        try:
+            await command(self.client, self.device)
+        except GrillCommandError as err:
+            raise HomeAssistantError(str(err)) from err
+        except GrillAuthError as err:
+            self.config_entry.async_start_reauth(self.hass)
+            raise HomeAssistantError(str(err)) from err
+        except GrillError as err:
+            raise HomeAssistantError(f"Could not reach the grill: {err}") from err
+        finally:
+            await self.async_request_refresh()
