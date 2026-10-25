@@ -1,0 +1,87 @@
+{
+  "allChambersAsOne": false,
+  "chambers": [
+    {
+      "numChamber": 0,
+      "onOff": true,
+      "onOffTime": 6625000,
+      "timers": [
+        {
+          "numTimer": 0,
+          "timerOnOff": false,
+          "timerOnOffTime": 274844244000,
+          "timerOnOffValueSeconds": 0
+        }
+      ],
+      "chronoOnOff": false,
+      "chronoOnOffTime": 0,
+      "chronoOnOffValueSeconds": 0,
+      "probes": [
+        {
+          "numProbe": 0,
+          "type": "GENERAL",
+          "status": "ACTIVE",
+          "currentTemperature": 247,
+          "targetReachedTime": 0,
+          "targetTemperature": 247,
+          "minTemperatureAlarm": 0,
+          "maxTemperatureAlarm": 0,
+          "recipe": null,
+          "recipeName": null
+        },
+        {
+          "numProbe": 1,
+          "type": "MEAT",
+          "status": "ACTIVE",
+          "currentTemperature": 32,
+          "targetReachedTime": 0,
+          "targetTemperature": 240,
+          "minTemperatureAlarm": 0,
+          "maxTemperatureAlarm": 0,
+          "recipe": null,
+          "recipeName": null
+        },
+        {
+          "numProbe": 2,
+          "type": "MEAT",
+          "status": "ACTIVE",
+          "currentTemperature": 32,
+          "targetReachedTime": 0,
+          "targetTemperature": 240,
+          "minTemperatureAlarm": 0,
+          "maxTemperatureAlarm": 0,
+          "recipe": null,
+          "recipeName": null
+        },
+        {
+          "numProbe": 3,
+          "type": "MEAT",
+          "status": "ACTIVE",
+          "currentTemperature": 32,
+          "targetReachedTime": 0,
+          "targetTemperature": 240,
+          "minTemperatureAlarm": 0,
+          "maxTemperatureAlarm": 0,
+          "recipe": null,
+          "recipeName": null
+        }
+      ],
+      "currentAlarms": [],
+      "mode": "SMOKE_PLUS",
+      "fan": false,
+      "charcoalStarter": false,
+      "coolMode": false,
+      "rotis": false,
+      "light": false,
+      "searMode": "NOSEAR",
+      "runMode": "NOMODE",
+      "motor": false,
+      "ignitor": false,
+      "timerOnOff": false,
+      "timerOnOffTime": 274844244000,
+      "timerOnOffValueSeconds": 0
+    }
+  ],
+  "lastDeviceUpdate": 1792963306143,
+  "lastUpdate": 1792963306143
+}

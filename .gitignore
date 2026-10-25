@@ -1,0 +1,4 @@
+.env
+*.apk
+__pycache__/
+.pytest_cache/

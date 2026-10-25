@@ -1,0 +1,94 @@
+{
+  "allChambersAsOne": false,
+  "chambers": [
+    {
+      "numChamber": 0,
+      "onOff": false,
+      "onOffTime": 0,
+      "timers": [
+        {
+          "numTimer": 0,
+          "timerOnOff": false,
+          "timerOnOffTime": 0,
+          "timerOnOffValueSeconds": 0
+        }
+      ],
+      "chronoOnOff": false,
+      "chronoOnOffTime": 0,
+      "chronoOnOffValueSeconds": 0,
+      "probes": [
+        {
+          "numProbe": 0,
+          "type": "GENERAL",
+          "status": "ACTIVE",
+          "currentTemperature": 0,
+          "targetReachedTime": 0,
+          "targetTemperature": 0,
+          "minTemperatureAlarm": 0,
+          "maxTemperatureAlarm": 0,
+          "recipe": null,
+          "recipeName": null
+        },
+        {
+          "numProbe": 1,
+          "type": "MEAT",
+          "status": "ACTIVE",
+          "currentTemperature": 0,
+          "targetReachedTime": 0,
+          "targetTemperature": 0,
+          "minTemperatureAlarm": 0,
+          "maxTemperatureAlarm": 0,
+          "recipe": null,
+          "recipeName": null
+        },
+        {
+          "numProbe": 2,
+          "type": "MEAT",
+          "status": "ACTIVE",
+          "currentTemperature": 0,
+          "targetReachedTime": 0,
+          "targetTemperature": 0,
+          "minTemperatureAlarm": 0,
+          "maxTemperatureAlarm": 0,
+          "recipe": null,
+          "recipeName": null
+        },
+        {
+          "numProbe": 3,
+          "type": "MEAT",
+          "status": "ACTIVE",
+          "currentTemperature": 0,
+          "targetReachedTime": 0,
+          "targetTemperature": 0,
+          "minTemperatureAlarm": 0,
+          "maxTemperatureAlarm": 0,
+          "recipe": null,
+          "recipeName": null
+        }
+      ],
+      "currentAlarms": [
+        {
+          "numAlarm": 72420081,
+          "type": "DEVICE_NOT_FOUND",
+          "params": [],
+          "time": 1792963310566
+        }
+      ],
+      "mode": "SMOKE",
+      "fan": false,
+      "charcoalStarter": false,
+      "coolMode": false,
+      "rotis": false,
+      "light": false,
+      "searMode": "NOSEAR",
+      "runMode": "NOMODE",
+      "motor": false,
+      "ignitor": false,
+      "timerOnOff": false,
+      "timerOnOffTime": 0,
+      "timerOnOffValueSeconds": 0
+    }
+  ],
+  "lastDeviceUpdate": 0,
+  "lastUpdate": 0
+}

@@ -1,0 +1,51 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Twin Eagles account",
+        "description": "Sign in with the account you use in the Twin Eagles app.",
+        "data": { "username": "Email", "password": "Password" }
+      },
+      "device": {
+        "title": "Choose grill",
+        "data": { "device_id": "Grill" }
+      },
+      "reauth_confirm": {
+        "title": "Sign in again",
+        "data": { "username": "Email", "password": "Password" }
+      }
+    },
+    "error": {
+      "invalid_auth": "Invalid email or password.",
+      "cannot_connect": "Could not reach the Twin Eagles cloud."
+    },
+    "abort": {
+      "already_configured": "This grill is already configured.",
+      "no_devices": "No grills found on this account.",
+      "reauth_successful": "Signed in again."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "pit_temperature": { "name": "Pit temperature" },
+      "set_temperature": { "name": "Set temperature" },
+      "mode": { "name": "Mode" },
+      "last_update": { "name": "Last update" },
+      "probe_1_temperature": { "name": "Probe {probe} temperature" },
+      "probe_2_temperature": { "name": "Probe {probe} temperature" },
+      "probe_3_temperature": { "name": "Probe {probe} temperature" },
+      "probe_1_target": { "name": "Probe {probe} target" },
+      "probe_2_target": { "name": "Probe {probe} target" },
+      "probe_3_target": { "name": "Probe {probe} target" }
+    },
+    "binary_sensor": {
+      "power": { "name": "Power" },
+      "fan": { "name": "Fan" },
+      "ignitor": { "name": "Ignitor" },
+      "auger": { "name": "Auger" },
+      "light": { "name": "Light" },
+      "alarm": { "name": "Alarm" },
+      "online": { "name": "Online" }
+    }
+  }
+}
