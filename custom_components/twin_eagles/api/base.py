@@ -38,7 +38,8 @@ class GrillClient(ABC):
     """Access to one or more grills.
 
     The public set methods check the current status first and refuse to act on a grill that is off or offline,
-    so nothing here can bring an idle grill to life. There is deliberately no start command.
+    so nothing here can bring an idle grill to life. The light is the exception: it only needs the grill online.
+    There is deliberately no start command.
     """
 
     @abstractmethod
@@ -79,10 +80,19 @@ class GrillClient(ABC):
             raise GrillCommandError("Sear level can only be set in sear mode")
         await self._async_set_sear_level(device, level)
 
-    async def _async_require_running(self, device: GrillDevice) -> GrillStatus:
+    async def async_set_light(self, device: GrillDevice, on: bool) -> None:
+        """Turn the grill light on or off. Allowed while the grill is off, since it doesn't start anything."""
+        await self._async_require_online(device)
+        await self._async_set_light(device, on)
+
+    async def _async_require_online(self, device: GrillDevice) -> GrillStatus:
         status = await self.async_get_status(device)
         if not status.online:
             raise GrillCommandError("Grill is offline")
+        return status
+
+    async def _async_require_running(self, device: GrillDevice) -> GrillStatus:
+        status = await self._async_require_online(device)
         if not status.on:
             raise GrillCommandError("Grill is off; start it from the grill or the app first")
         return status
@@ -98,6 +108,10 @@ class GrillClient(ABC):
     @abstractmethod
     async def _async_set_sear_level(self, device: GrillDevice, level: str) -> None:
         """Send a sear level change. Inputs are already validated."""
+
+    @abstractmethod
+    async def _async_set_light(self, device: GrillDevice, on: bool) -> None:
+        """Switch the light."""
 
 
 def _check_range(name: str, value: int, low: int, high: int) -> None:

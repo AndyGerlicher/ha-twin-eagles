@@ -33,6 +33,18 @@
       "reauth_successful": "Signed in again."
     }
   },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Polling",
+        "description": "How often to check the grill, in seconds. The slow rate applies while the grill is off or offline; it switches to the fast rate once the grill is on.",
+        "data": {
+          "active_interval": "While cooking",
+          "idle_interval": "While off or offline"
+        }
+      }
+    }
+  },
   "entity": {
     "sensor": {
       "pit_temperature": {
@@ -70,9 +82,6 @@
       "auger": {
         "name": "Auger"
       },
-      "light": {
-        "name": "Light"
-      },
       "alarm": {
         "name": "Alarm"
       },
@@ -104,6 +113,11 @@
           "med": "Medium",
           "max": "High"
         }
+      }
+    },
+    "switch": {
+      "light": {
+        "name": "Light"
       }
     }
   }

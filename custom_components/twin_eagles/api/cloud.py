@@ -74,6 +74,9 @@ class CloudClient(GrillClient):
     async def _async_set_sear_level(self, device: GrillDevice, level: str) -> None:
         await self._authed("PUT", f"{self._device_path(device)}/chambers/0/searmode?searmode={level.upper()}")
 
+    async def _async_set_light(self, device: GrillDevice, on: bool) -> None:
+        await self._authed("PUT", f"{self._device_path(device)}/chambers/0/light/{'start' if on else 'stop'}")
+
     @staticmethod
     def _device_path(device: GrillDevice) -> str:
         # Case sensitive: the device list says PELLETS, the API wants pellets.

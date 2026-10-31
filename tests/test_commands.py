@@ -32,6 +32,9 @@ class FakeClient(GrillClient):
     async def _async_set_sear_level(self, device, level):
         self.sent.append(("sear", level))
 
+    async def _async_set_light(self, device, on):
+        self.sent.append(("light", on))
+
 
 def running(**changes) -> FakeClient:
     return FakeClient(dataclasses.replace(load_status("status_online"), **changes))
@@ -112,4 +115,17 @@ async def test_sear_level_requires_sear_mode() -> None:
     client = running()
     with pytest.raises(GrillCommandError, match="sear mode"):
         await client.async_set_sear_level(ONLINE, "max")
+    assert client.sent == []
+
+
+async def test_light_allowed_while_off() -> None:
+    client = running(on=False)
+    await client.async_set_light(ONLINE, True)
+    assert client.sent == [("light", True)]
+
+
+async def test_light_refused_when_offline() -> None:
+    client = running(online=False)
+    with pytest.raises(GrillCommandError, match="offline"):
+        await client.async_set_light(ONLINE, True)
     assert client.sent == []

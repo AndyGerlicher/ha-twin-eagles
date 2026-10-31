@@ -35,9 +35,6 @@ BINARY_SENSORS: list[TwinEaglesBinarySensorDescription] = [
         key="auger", translation_key="auger", device_class=BinarySensorDeviceClass.RUNNING, value_fn=lambda s: s.auger
     ),
     TwinEaglesBinarySensorDescription(
-        key="light", translation_key="light", device_class=BinarySensorDeviceClass.LIGHT, value_fn=lambda s: s.light
-    ),
-    TwinEaglesBinarySensorDescription(
         key="alarm",
         translation_key="alarm",
         device_class=BinarySensorDeviceClass.PROBLEM,

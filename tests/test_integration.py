@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import dataclasses
+from datetime import timedelta
 
 import pytest
 from homeassistant import config_entries
@@ -76,7 +77,7 @@ async def test_entities(hass: HomeAssistant, mock_client) -> None:
     # Unplugged probes report 32 °F and should show as unknown.
     assert hass.states.get(f"sensor.{prefix}_probe_1_temperature").state == STATE_UNKNOWN
     assert hass.states.get(f"binary_sensor.{prefix}_power").state == STATE_ON
-    assert hass.states.get(f"binary_sensor.{prefix}_light").state == STATE_OFF
+    assert hass.states.get(f"switch.{prefix}_light").state == STATE_OFF
     assert hass.states.get(f"binary_sensor.{prefix}_online").state == STATE_ON
     assert hass.states.get(f"binary_sensor.{prefix}_alarm").state == STATE_OFF
 
@@ -184,3 +185,54 @@ async def test_command_error_surfaces(hass: HomeAssistant, mock_client) -> None:
             {"entity_id": "number.my_twin_eagles_grill_set_temperature", "value": 225},
             blocking=True,
         )
+
+
+async def test_poll_interval_follows_power(hass: HomeAssistant, mock_client) -> None:
+    await _setup(hass, mock_client)
+    coordinator = hass.config_entries.async_entries(DOMAIN)[0].runtime_data
+    assert coordinator.update_interval == timedelta(seconds=20)
+
+    mock_client.statuses[ONLINE.id] = dataclasses.replace(mock_client.statuses[ONLINE.id], on=False)
+    await coordinator.async_refresh()
+    assert coordinator.update_interval == timedelta(minutes=2)
+
+    mock_client.statuses[ONLINE.id] = dataclasses.replace(mock_client.statuses[ONLINE.id], on=True, online=False)
+    await coordinator.async_refresh()
+    assert coordinator.update_interval == timedelta(minutes=2)
+
+
+async def test_options_change_intervals(hass: HomeAssistant, mock_client) -> None:
+    await _setup(hass, mock_client)
+    entry = hass.config_entries.async_entries(DOMAIN)[0]
+
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    assert result["type"] is FlowResultType.FORM
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], {"active_interval": 10, "idle_interval": 600}
+    )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    await hass.async_block_till_done()
+
+    # The entry reloads with the new values; the grill is on, so the fast rate applies.
+    assert entry.runtime_data.active_interval == timedelta(seconds=10)
+    assert entry.runtime_data.idle_interval == timedelta(minutes=10)
+    assert entry.runtime_data.update_interval == timedelta(seconds=10)
+
+
+async def test_light_works_while_off(hass: HomeAssistant, mock_client) -> None:
+    await _setup(hass, mock_client, on=False)
+    entity_id = "switch.my_twin_eagles_grill_light"
+    assert hass.states.get(entity_id).state == STATE_OFF
+
+    await hass.services.async_call("switch", "turn_on", {"entity_id": entity_id}, blocking=True)
+    mock_client.async_set_light.assert_awaited_once_with(ONLINE, True)
+    await hass.services.async_call("switch", "turn_off", {"entity_id": entity_id}, blocking=True)
+    mock_client.async_set_light.assert_awaited_with(ONLINE, False)
+
+
+async def test_light_unavailable_when_offline(hass: HomeAssistant, mock_client) -> None:
+    entry = make_entry(OFFLINE)
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    assert hass.states.get("switch.my_twin_eagles_grill_light").state == STATE_UNAVAILABLE

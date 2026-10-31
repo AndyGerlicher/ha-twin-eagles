@@ -9,7 +9,7 @@ from .api import CloudClient, GrillClient, GrillDevice
 from .const import CONF_DEVICE_ID, CONF_DEVICE_NAME, CONF_MODEL, CONF_SOURCE, CONF_TECHNOLOGY, SOURCE_CLOUD
 from .coordinator import TwinEaglesConfigEntry, TwinEaglesCoordinator
 
-PLATFORMS = [Platform.BINARY_SENSOR, Platform.NUMBER, Platform.SELECT, Platform.SENSOR]
+PLATFORMS = [Platform.BINARY_SENSOR, Platform.NUMBER, Platform.SELECT, Platform.SENSOR, Platform.SWITCH]
 
 
 def create_client(hass: HomeAssistant, data: dict) -> GrillClient:
@@ -31,7 +31,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: TwinEaglesConfigEntry) -
     await coordinator.async_config_entry_first_refresh()
     entry.runtime_data = coordinator
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    entry.async_on_unload(entry.add_update_listener(_async_options_updated))
     return True
+
+
+async def _async_options_updated(hass: HomeAssistant, entry: TwinEaglesConfigEntry) -> None:
+    await hass.config_entries.async_reload(entry.entry_id)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: TwinEaglesConfigEntry) -> bool:

@@ -1,5 +1,4 @@
 """Constants for the Twin Eagles integration."""
-from datetime import timedelta
 
 DOMAIN = "twin_eagles"
 MANUFACTURER = "Twin Eagles"
@@ -12,4 +11,9 @@ CONF_MODEL = "model"
 
 SOURCE_CLOUD = "cloud"
 
-SCAN_INTERVAL = timedelta(seconds=30)
+# Poll slowly while the grill is off or offline and faster while it is cooking (the grill itself reports every ~4 s).
+# Both are configurable in the options flow, in seconds.
+CONF_IDLE_INTERVAL = "idle_interval"
+CONF_ACTIVE_INTERVAL = "active_interval"
+DEFAULT_IDLE_INTERVAL = 120
+DEFAULT_ACTIVE_INTERVAL = 20

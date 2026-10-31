@@ -21,11 +21,13 @@ deliberately can't start or stop the grill.
 | Pit temperature, Set temperature | °F from the grill, converted to your unit system |
 | Probe 1–3 temperature | `unknown` when the probe is unplugged |
 | Mode | `smoke`, `smoke_plus`, `sear`, `charcoal` |
-| Power, Fan, Ignitor, Auger, Light | Binary sensors |
+| Power, Fan, Ignitor, Auger | Binary sensors |
 | Alarm | On when the grill reports alarms; list in the `alarms` attribute |
 | Online, Last update | Diagnostics |
 
-Status is polled every 30 seconds.
+Status is polled every 20 seconds while the grill is on and every 2 minutes while it is off or offline, so
+a grill started from the app or the control panel shows up within 2 minutes. Both intervals can be changed
+under the integration's **Configure** button.
 
 ### Controls
 
@@ -35,9 +37,11 @@ Status is polled every 30 seconds.
 | Cooking mode (select) | Smoke, Smoke Plus, Sear. Charcoal is not settable |
 | Sear level (select) | Low, Medium, High. Sear mode only |
 | Probe 1–3 target (number) | 100–225 °F, the same limits as the app |
+| Light (switch) | Works while the grill is off too |
 
-Controls are unavailable while the grill is off or offline, and the client library refuses commands in that
-state as well, so nothing can bring an idle grill to life. There is no start command.
+Cooking controls are unavailable while the grill is off or offline, and the client library refuses commands in
+that state as well, so nothing can bring an idle grill to life. The light only needs the grill to be online.
+There is no start command.
 
 ## Design
 

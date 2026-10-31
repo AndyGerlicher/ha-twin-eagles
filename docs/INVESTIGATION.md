@@ -186,8 +186,10 @@ Space separated `name value` pairs. **Temperatures in °C.** Field names are Spa
 
 ## Ideas to improve the cloud integration
 
-- **Poll faster.** The grill reports every ~4 s, so 30 s polling is conservative; 10–15 s would be fine.
-- **Light switch.** `chambers/0/light/start|stop` is low risk and the light state is already read.
+- **Poll faster.** Done: 20 s while on, 2 min while off, both configurable. The grill reports every ~4 s, so the active interval
+  could go lower.
+- **Light switch.** Done (`chambers/0/light/start|stop`). Not yet verified live, including whether it works
+  while the grill is off.
 - **Timers.** The status has timer and stopwatch state, and the app has start/stop/reset endpoints.
 - **More sensors** from fields already in the status: run time (`onOffTime`), cool-down (`coolMode`), probe
   target reached (`targetReachedTime`), recipe name, rotisserie and charcoal starter state.
