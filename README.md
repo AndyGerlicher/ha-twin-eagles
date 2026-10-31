@@ -55,6 +55,9 @@ pytest
 
 `te_status.py` is a standalone CLI that prints the current status. Put `TE_USER` and `TE_PASS` in `.env`.
 
+See [docs/INVESTIGATION.md](docs/INVESTIGATION.md) for the protocol notes (cloud API, the grill's local
+hotspot protocol) and what has been tried toward local-only control.
+
 ## Disclaimer
 
 Not affiliated with or endorsed by Twin Eagles or Dometic. Use at your own risk.
